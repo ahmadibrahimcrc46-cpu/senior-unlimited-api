@@ -1,104 +1,78 @@
 <!DOCTYPE html>
-<html>
-<head><link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
+<html lang="en">
+<head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ScoreSphere</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScoreSphere - Live Football</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0e1a;color:#fff;font-family:Arial,sans-serif}
-nav{background:#111a2e;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:99;border-bottom:2px solid #00ff88;overflow-x:auto}
-.logo{color:#00ff88;font-weight:bold;font-size:20px;white-space:nowrap}
-.menu{display:flex;gap:8px}
-.menu button{background:transparent;border:1px solid #1e2d50;color:#aaa;padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer}
-.menu button.active{background:#00ff88;color:#000;border-color:#00ff88;font-weight:bold}
-.container{max-width:650px;margin:auto;padding:15px}
-.card{background:#111a2e;border-radius:14px;padding:15px;margin:12px 0;border:1px solid #1e2d50}
-.tab{display:none}
-.tab.active{display:block}
-.match{padding:12px 0;border-bottom:1px solid #1e2d50;display:flex;justify-content:space-between;align-items:center}
-.score{color:#00ff88;font-weight:bold;background:#00ff8815;padding:4px 10px;border-radius:10px;font-size:13px}
-.team{display:flex;align-items:center;gap:8px}
-.team-logo{width:28px;height:28px;background:#1e2d50;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
-.flow-item{border-left:3px solid #00ff88;padding:8px 12px;margin:10px 0;background:#0f1a30;border-radius:0 10px 10px 0}
-h2{color:#00ff88;font-size:16px;margin-bottom:12px}
+body{background:#0f172a;color:white;font-family:Arial;margin:0}
+header{background:#020617;padding:15px;display:flex;align-items:center;gap:10px;border-bottom:2px solid #22c55e}
+header img{width:40px;height:40px;border-radius:10px}
+.nav{display:flex;gap:10px;padding:10px;background:#020617}
+.nav button{background:#1e293b;color:#22c55e;border:none;padding:8px 18px;border-radius:20px;font-weight:bold}
+.nav button.active{background:#22c55e;color:black}
+.live{color:#22c55e;text-align:center;padding:15px;font-weight:bold}
+.card{background:#1e293b;margin:10px;border-radius:12px;padding:15px}
+.match{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #334155}
+.odds{display:flex;gap:8px;margin-top:8px}
+.odds span{background:#0f172a;border:1px solid #22c55e;padding:4px 10px;border-radius:6px;font-size:12px;color:#22c55e}
+.score{background:#0f172a;padding:4px 12px;border-radius:20px;color:#22c55e;font-weight:bold}
 </style>
 </head>
 <body>
-<nav>
-<div class="logo">⚽ ScoreSphere</div>
-<div class="menu">
-<button class="active" onclick="showTab('home',this)">HOME</button>
-<button onclick="showTab('live',this)">LIVE</button>
-<button onclick="showTab('teams',this)">TEAMS</button>
-<button onclick="showTab('flow',this)">FLOW</button>
-</div>
-</nav>
 
-<div class="container">
-<!-- HOME -->
-<div id="home" class="tab active">
-<p style="text-align:center;margin:10px;color:#00ff88">● LIVE - Real Time</p>
+<header>
+<img src="icon.png" alt="logo">
+<h2 style="margin:0;color:#22c55e">ScoreSphere</h2>
+</header>
+
+<div class="nav">
+<button class="active">HOME</button>
+<button>LIVE</button>
+<button>TEAMS</button>
+<button>ODDS</button>
+</div>
+
+<div class="live">● LIVE - Real Time</div>
+
 <div class="card">
-<h2>📅 Today Matches</h2>
-<div class="match"><div class="team"><span class="team-logo">MC</span>Man City vs Arsenal</div><span class="score">2-1 | 78'</span></div>
-<div class="match"><div class="team"><span class="team-logo">FCB</span>Barcelona vs Real Madrid</div><span class="score">3-0 | FT</span></div>
-<div class="match"><div class="team"><span class="team-logo">LIV</span>Liverpool vs Chelsea</div><span class="score">3-0 | FT</span></div>
+<h3 style="color:#22c55e;margin:0 0 10px 0">📅 Today Matches + Betting Odds</h3>
+
+<div class="match">
+<div>
+<b>Man City vs Arsenal</b>
+<div class="odds"><span>1: 2.10</span><span>X: 3.40</span><span>2: 3.20</span></div>
 </div>
+<div class="score">2-1 | 78'</div>
 </div>
 
-<!-- LIVE -->
-<div id="live" class="tab">
-<div class="card">
-<h2>🔴 LIVE NOW</h2>
-<div class="match"><div class="team"><span class="team-logo">MC</span>Man City 2-1 Arsenal</div><span class="score">78'</span></div>
-<div class="match"><div class="team"><span class="team-logo">LIV</span>Liverpool 2-2 Chelsea</div><span class="score">65'</span></div>
+<div class="match">
+<div>
+<b>Barcelona vs Real Madrid</b>
+<div class="odds"><span>1: 2.50</span><span>X: 3.60</span><span>2: 2.75</span><span>Over 2.5: 1.85</span></div>
 </div>
-</div>
-
-<!-- TEAMS -->
-<div id="teams" class="tab">
-<div class="card">
-<h2>🏆 Top Teams</h2>
-<div class="match"><div class="team"><span class="team-logo">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span> Manchester City</div><span>PL</span></div>
-<div class="match"><div class="team"><span class="team-logo">🔵</span> Chelsea</div><span>PL</span></div>
-<div class="match"><div class="team"><span class="team-logo">🔴</span> Arsenal</div><span>PL</span></div>
-<div class="match"><div class="team"><span class="team-logo">🔴</span> Liverpool</div><span>PL</span></div>
-<div class="match"><div class="team"><span class="team-logo">🔵🔴</span> Barcelona</div><span>La Liga</span></div>
-<div class="match"><div class="team"><span class="team-logo">⚪</span> Real Madrid</div><span>La Liga</span></div>
-<div class="match"><div class="team"><span class="team-logo">🔴</span> Bayern Munich</div><span>Bundesliga</span></div>
-</div>
+<div class="score">3-0 | FT</div>
 </div>
 
-<!-- FLOW -->
-<div id="flow" class="tab">
-<div class="card">
-<h2>📊 Match Flow</h2>
-<div class="flow-item"><b>78'</b> ⚽ Goal! Man City 2-1 - Haaland</div>
-<div class="flow-item"><b>65'</b> 🟨 Yellow Card - Chelsea</div>
-<div class="flow-item"><b>45'</b> ⏸️ Half Time - Bayern 1-1 Dortmund</div>
-<div class="flow-item"><b>23'</b> ⚽ Goal! Barcelona 2-0 - Lewandowski</div>
-<div class="flow-item"><b>10'</b> 🔄 Substitution - Arsenal</div>
+<div class="match">
+<div>
+<b>Liverpool vs Chelsea</b>
+<div class="odds"><span>1: 1.95</span><span>X: 3.80</span><span>2: 3.90</span></div>
 </div>
+<div class="score">3-0 | FT</div>
 </div>
 
-<div class="card" style="text-align:center;border-color:#00ff88;background:#00ff8815">
-✅ scoresphere-live.tiiny.site - LIVE!
-</div>
 </div>
 
 <script>
-function showTab(id,btn){
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
-btn.classList.add('active');
-}
-</script>
-</body><script>
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js');
 }
 </script>
+</body>
 </html>
