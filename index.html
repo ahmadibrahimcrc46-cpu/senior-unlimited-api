@@ -4,30 +4,31 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ScoreSphere - Live Football</title>
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="icon" href="icon.png">
 <meta name="theme-color" content="#0f172a">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ScoreSphere">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5021/5021091.png">
+<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5021/5021091.png">
 <style>
 body{background:#0f172a;color:white;font-family:Arial;margin:0}
 header{background:#020617;padding:15px;display:flex;align-items:center;gap:10px;border-bottom:2px solid #22c55e}
-header img{width:40px;height:40px;border-radius:10px}
-.nav{display:flex;gap:10px;padding:10px;background:#020617}
-.nav button{background:#1e293b;color:#22c55e;border:none;padding:8px 18px;border-radius:20px;font-weight:bold}
+header img{width:40px;height:40px;border-radius:10px;background:#22c55e;padding:3px}
+.nav{display:flex;gap:10px;padding:10px;background:#020617;overflow:auto}
+.nav button{background:#1e293b;color:#22c55e;border:none;padding:8px 18px;border-radius:20px;font-weight:bold;white-space:nowrap}
 .nav button.active{background:#22c55e;color:black}
-.live{color:#22c55e;text-align:center;padding:15px;font-weight:bold}
+.live{color:#22c55e;text-align:center;padding:15px;font-weight:bold;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.5}}
 .card{background:#1e293b;margin:10px;border-radius:12px;padding:15px}
-.match{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #334155}
-.odds{display:flex;gap:8px;margin-top:8px}
-.odds span{background:#0f172a;border:1px solid #22c55e;padding:4px 10px;border-radius:6px;font-size:12px;color:#22c55e}
-.score{background:#0f172a;padding:4px 12px;border-radius:20px;color:#22c55e;font-weight:bold}
+.match{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #334155}
+.odds{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.odds span{background:#0f172a;border:1px solid #22c55e;padding:3px 8px;border-radius:6px;font-size:11px;color:#22c55e}
+.score{background:#0f172a;padding:4px 12px;border-radius:20px;color:#22c55e;font-weight:bold;min-width:70px;text-align:center}
 </style>
 </head>
 <body>
 
 <header>
-<img src="icon.png" alt="logo">
+<img src="https://cdn-icons-png.flaticon.com/512/5021/5021091.png" alt="logo">
 <h2 style="margin:0;color:#22c55e">ScoreSphere</h2>
 </header>
 
@@ -38,7 +39,7 @@ header img{width:40px;height:40px;border-radius:10px}
 <button>ODDS</button>
 </div>
 
-<div class="live">● LIVE - Real Time</div>
+<div class="live">● LIVE - Auto Updating</div>
 
 <div class="card">
 <h3 style="color:#22c55e;margin:0 0 10px 0">📅 Today Matches + Betting Odds</h3>
@@ -64,14 +65,55 @@ header img{width:40px;height:40px;border-radius:10px}
 <b>Liverpool vs Chelsea</b>
 <div class="odds"><span>1: 1.95</span><span>X: 3.80</span><span>2: 3.90</span></div>
 </div>
-<div class="score">3-0 | FT</div>
+<div class="score">1-1 | 45'</div>
 </div>
-
 </div>
 
 <script>
+// AUTO UPDATE PWA - no need to re-add
+const manifest = {
+  name: "ScoreSphere - Live Football",
+  short_name: "ScoreSphere",
+  start_url: "./?pwa=1",
+  display: "standalone",
+  background_color: "#0f172a",
+  theme_color: "#0f172a",
+  icons: [{
+    src: "https://cdn-icons-png.flaticon.com/512/5021/5021091.png",
+    sizes: "512x512",
+    type: "image/png"
+  }]
+};
+const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+const manifestURL = URL.createObjectURL(blob);
+const link = document.createElement('link');
+link.rel = 'manifest';
+link.href = manifestURL;
+document.head.appendChild(link);
+
+// Service Worker for auto update
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js');
+  const swCode = `
+    self.addEventListener('install', e => self.skipWaiting());
+    self.addEventListener('activate', e => { self.clients.claim(); });
+    self.addEventListener('fetch', e => {
+      e.respondWith(fetch(e.request, {cache: 'no-store'}).catch(()=> caches.match(e.request)));
+    });
+  `;
+  const swBlob = new Blob([swCode], {type: 'application/javascript'});
+  const swURL = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swURL).then(reg=>{
+    reg.addEventListener('updatefound', ()=>{
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', ()=>{
+        if(newWorker.state === 'installed' && navigator.serviceWorker.controller){
+          window.location.reload();
+        }
+      });
+    });
+  });
+  // Check for update every 30 seconds
+  setInterval(()=>{ reg && reg.update(); }, 30000);
 }
 </script>
 </body>
