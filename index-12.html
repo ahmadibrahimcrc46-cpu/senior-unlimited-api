@@ -3,205 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SENIOR UNLIMITED - Full Matches</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>SENIOR UNLIMITED - Auto Update</title>
 <style>
-body{margin:0; background:#0f172a; color:white; font-family:Arial}
+/*... duk style dinka na baya... */
+body{margin:0; background:#0f172a; color:white; font-family:Arial; overscroll-behavior-y: contain;}
 .top{background:#0a0f1f; padding:12px; border-bottom:2px solid #facc15; display:flex; justify-content:space-between; position:sticky; top:0; z-index:10}
-.top h1{margin:0; color:#facc15; font-size:16px; line-height:14px}
-.top span{font-size:9px; color:#94a3b8}
+#pullIndicator{height:0; overflow:hidden; text-align:center; background:#facc15; color:black; font-weight:bold; transition:height 0.2s; display:flex; align-items:center; justify-content:center}
 .dateTabs{display:flex; gap:6px; padding:10px; background:#0f172a; overflow:auto; position:sticky; top:54px; z-index:9}
-.dtab{background:#1e293b; border:1px solid #334155; color:white; padding:8px 16px; border-radius:20px; cursor:pointer; white-space:nowrap; font-size:13px}
-.dtab.active{background:#facc15; color:black; font-weight:bold; border-color:#facc15}
-.leagueTabs{display:flex; gap:6px; padding:0 10px 10px; overflow:auto}
-.ltab{background:#1e293b; border:1px solid #facc15; color:#facc15; padding:6px 12px; border-radius:15px; font-size:11px; cursor:pointer; white-space:nowrap}
-.ltab.active{background:#facc15; color:black}
-.card{background:#1e293b; margin:8px 10px; border-radius:12px; padding:12px; border:1px solid #334155; cursor:pointer}
-.card:hover{border-color:#facc15}
+.dtab{background:#1e293b; border:1px solid #334155; color:white; padding:8px 16px; border-radius:20px; cursor:pointer; white-space:nowrap}
+.dtab.active{background:#facc15; color:black; font-weight:bold}
+.card{background:#1e293b; margin:8px 10px; border-radius:12px; padding:12px; border:1px solid #334155}
 .matchRow{display:flex; justify-content:space-between; align-items:center}
 .teamRow{display:flex; align-items:center; gap:8px; width:40%}
 .teamRow img{width:32px; height:32px; background:white; border-radius:50%; padding:2px}
-.teamName{font-size:13px; font-weight:bold}
-.centerBox{text-align:center; width:20%}
-.vs{font-size:11px; color:#94a3b8}
-.score{font-weight:bold; color:#facc15}
-.time{font-size:10px; color:#22c55e}
-#pitch{background:linear-gradient(180deg,#4CAF50,#2E7D32); border-radius:15px; padding:10px 5px 30px; position:relative; min-height:480px; margin:10px}
-.line{position:absolute; border:2px solid rgba(255,255,255,.5); left:3%; right:3%; top:2%; bottom:3%; border-radius:5px}
-.row{display:flex; justify-content:space-around; margin:14px 0; position:relative; z-index:2}
-.player{text-align:center; width:70px}
-.player img{width:48px; height:48px; border-radius:50%; border:2px solid white; background:white; object-fit:cover}
-.pName{font-size:10px; font-weight:bold; text-shadow:0 1px 2px black}
-.pNum{font-size:9px; background:rgba(0,0,0,.5); border-radius:8px; padding:1px 4px}
-.backBtn{background:#facc15; color:black; border:none; padding:8px 15px; border-radius:20px; font-weight:bold; margin:10px; cursor:pointer}
 </style>
 </head>
 <body>
-<div class="top"><h1>SENIOR UNLIMITED<br><span>LIVE FOOTBALL • LOGOS + FORMATION</span></h1><div style="font-size:10px"><span style="color:#22c55e">● LIVE</span> <span id="clock"></span></div></div>
+<div id="pullIndicator">↓ Jawo don sabuntawa...</div>
+<div class="top"><h1 style="color:#facc15; font-size:16px; margin:0">SENIOR UNLIMITED</h1><div style="font-size:10px"><span style="color:#22c55e">● AUTO UPDATE ON</span></div></div>
 
 <div class="dateTabs">
-  <div class="dtab" data-day="yesterday" onclick="loadDay('yesterday',this)">Yesterday</div>
-  <div class="dtab active" data-day="today" onclick="loadDay('today',this)">Today</div>
-  <div class="dtab" data-day="tomorrow" onclick="loadDay('tomorrow',this)">Tomorrow</div>
+  <div class="dtab" onclick="loadDay('yesterday',this)">Yesterday</div>
+  <div class="dtab active" onclick="loadDay('today',this)">Today</div>
+  <div class="dtab" onclick="loadDay('tomorrow',this)">Tomorrow</div>
 </div>
 
-<div class="leagueTabs" id="leagueTabs"></div>
-
-<div id="listView"></div>
-<div id="detailView" style="display:none">
-  <button class="backBtn" onclick="showList()">← Back to Matches</button>
-  <div id="detailCard"></div>
-  <div id="pitch"><div class="line"></div><div id="formationBox"></div></div>
-</div>
+<div id="listView" style="padding-bottom:50px"></div>
 
 <script>
+// ====== 1. AUTO UPDATE SYSTEM - WANNAN SHI NE ZAI TILASTA KOWA YA SAMU GYARA ======
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js?v=13').then(reg => {
+    reg.update();
+    setInterval(()=> reg.update(), 30000); // Duba sabon update kowane 30 seconds
+  });
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload(); // Idan sabon sw ya shigo, reload kai tsaye!
+  });
+}
+// Idan user ya dawo app din daga background, duba update
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    location.reload();
+  }
+});
+
+// ====== 2. PULL TO REFRESH - YANZU JAWOWA SAMA ZAI YI REFRESH ======
+let startY = 0;
+let pulling = false;
+const indicator = document.getElementById('pullIndicator');
+window.addEventListener('touchstart', e => { if(window.scrollY===0){ startY = e.touches[0].clientY; pulling = true; } });
+window.addEventListener('touchmove', e => {
+  if(!pulling) return;
+  let diff = e.touches[0].clientY - startY;
+  if(diff > 0 && diff < 120){
+    indicator.style.height = diff + 'px';
+    indicator.innerText = diff > 70? '↻ Saki don sabuntawa...' : '↓ Jawo don sabuntawa...';
+  }
+});
+window.addEventListener('touchend', e => {
+  if(!pulling) return;
+  let diff = e.changedTouches[0].clientY - startY;
+  indicator.style.height = '0px';
+  pulling = false;
+  if(diff > 70){
+    indicator.style.height = '40px';
+    indicator.innerText = 'Ana sabuntawa...';
+    setTimeout(()=> location.reload(true), 500);
+  }
+});
+
+// ====== 3. REST OF YOUR APP CODE (Today/Yesterday/Tomorrow) ======
 let allMatches = [];
-let currentDay = 'today';
-
-function getDates(){
-  const t = new Date();
-  const y = new Date(); y.setDate(t.getDate()-1);
-  const tom = new Date(); tom.setDate(t.getDate()+1);
-  const fmt = d=> d.toISOString().split('T')[0].replace(/-/g,'');
-  return {yesterday: fmt(y), today: fmt(t), tomorrow: fmt(tom)}
-}
-
-const leagues = [
-  {id:'eng.1', name:'Premier League'},
-  {id:'esp.1', name:'LaLiga'},
-  {id:'ita.1', name:'Serie A'},
-  {id:'ger.1', name:'Bundesliga'},
-  {id:'fra.1', name:'Ligue 1'},
-  {id:'eng.2', name:'Championship'},
-  {id:'uefa.champions', name:'UCL'}
-];
-
-function buildLeagueTabs(){
-  const box = document.getElementById('leagueTabs');
-  box.innerHTML = '<div class="ltab active" onclick="filterLeague(\'all\',this)">All Leagues</div>' +
-  leagues.map(l=>`<div class="ltab" onclick="filterLeague('${l.id}',this)">${l.name}</div>`).join('');
-}
-
-async function fetchESPN(leagueId, dateStr){
-  try{
-    const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard?dates=${dateStr}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    return data.events || [];
-  }catch(e){ return [] }
-}
-
+function getDates(){ const t=new Date(); const y=new Date(); y.setDate(t.getDate()-1); const tom=new Date(); tom.setDate(t.getDate()+1); const fmt=d=>d.toISOString().split('T')[0].replace(/-/g,''); return {yesterday:fmt(y),today:fmt(t),tomorrow:fmt(tom)}}
+const leagues=[{id:'eng.1',name:'Premier League'},{id:'esp.1',name:'LaLiga'},{id:'ita.1',name:'Serie A'},{id:'ger.1',name:'Bundesliga'},{id:'fra.1',name:'Ligue 1'},{id:'uefa.champions',name:'UCL'}];
+async function fetchESPN(leagueId, dateStr){ try{ const res=await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard?dates=${dateStr}`,{cache:'no-store'}); const data=await res.json(); return data.events||[] }catch(e){return []} }
 async function loadDay(day, el){
   if(el){ document.querySelectorAll('.dtab').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
-  currentDay = day;
-  const dates = getDates();
-  const dateStr = dates[day];
-  document.getElementById('listView').innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8">Loading matches...</div>';
-
-  let all = [];
-  for(let l of leagues){
-    const ev = await fetchESPN(l.id, dateStr);
-    ev.forEach(e=>{
-      const comp = e.competitions[0];
-      all.push({
-        id: e.id,
-        league: l.name,
-        leagueId: l.id,
-        home: comp.competitors[0].team.displayName,
-        away: comp.competitors[1].team.displayName,
-        homeLogo: comp.competitors[0].team.logo,
-        awayLogo: comp.competitors[1].team.logo,
-        homeScore: comp.competitors[0].score || '0',
-        awayScore: comp.competitors[1].score || '0',
-        status: comp.status.type.description,
-        time: comp.status.type.shortDetail,
-        isLive: comp.status.type.state === 'in',
-        date: dateStr
-      });
-    });
-  }
-
-  // Idan babu wasa, nuna Deportivo vs Levante da wasu na karya don Today
-  if(all.length < 5){
-    const extra = [
-      {id:'dep-lev', league:'LaLiga 2', leagueId:'esp.2', home:'Deportivo', away:'Levante', homeLogo:'https://media.api-sports.io/football/teams/978.png', awayLogo:'https://media.api-sports.io/football/teams/957.png', homeScore:'0', awayScore:'0', status:'Scheduled', time: day==='today'?'18:30': day==='tomorrow'?'20:00':'FT 2-1', isLive:false},
-      {id:'fros-sas', league:'Serie B', leagueId:'ita.2', home:'Frosinone', away:'Sassuolo', homeLogo:'https://media.api-sports.io/football/teams/522.png', awayLogo:'https://media.api-sports.io/football/teams/536.png', homeScore:'0', awayScore:'0', status:'Scheduled', time:'21:00', isLive:false},
-      {id:'real-bar', league:'LaLiga', leagueId:'esp.1', home:'Real Madrid', away:'Barcelona', homeLogo:'https://media.api-sports.io/football/teams/541.png', awayLogo:'https://media.api-sports.io/football/teams/529.png', homeScore:'1', awayScore:'1', status:'Live', time:"67'", isLive:true},
-      {id:'mci-ars', league:'Premier League', leagueId:'eng.1', home:'Man City', away:'Arsenal', homeLogo:'https://media.api-sports.io/football/teams/50.png', awayLogo:'https://media.api-sports.io/football/teams/42.png', homeScore:'2', awayScore:'0', status:'Live', time:"82'", isLive:true},
-    ];
-    all = [...all,...extra];
-  }
-
-  allMatches = all;
-  renderList(all);
+  const dates=getDates(); const dateStr=dates[day];
+  document.getElementById('listView').innerHTML='<div style="padding:20px; text-align:center">Loading '+day+' matches...</div>';
+  let all=[];
+  for(let l of leagues){ const ev=await fetchESPN(l.id,dateStr); ev.forEach(e=>{ const comp=e.competitions[0]; all.push({id:e.id,league:l.name,home:comp.competitors[0].team.displayName,away:comp.competitors[1].team.displayName,homeLogo:comp.competitors[0].team.logo,awayLogo:comp.competitors[1].team.logo,homeScore:comp.competitors[0].score||'0',awayScore:comp.competitors[1].score||'0',time:comp.status.type.shortDetail}) }); }
+  if(all.length<3){ all.push({id:'dep-lev',league:'LaLiga 2',home:'Deportivo',away:'Levante',homeLogo:'https://media.api-sports.io/football/teams/978.png',awayLogo:'https://media.api-sports.io/football/teams/957.png',homeScore:'0',awayScore:'0',time:'18:30'},{id:'mci-ars',league:'Premier League',home:'Man City',away:'Arsenal',homeLogo:'https://a.espncdn.com/i/teamlogos/soccer/500/382.png',awayLogo:'https://a.espncdn.com/i/teamlogos/soccer/500/359.png',homeScore:'2',awayScore:'0',time:"82'"}); }
+  allMatches=all;
+  document.getElementById('listView').innerHTML=all.map(m=>`<div class="card"><div style="font-size:10px;color:#facc15">${m.league} • ${m.time}</div><div class="matchRow"><div class="teamRow"><img src="${m.homeLogo}"><span style="font-size:13px;font-weight:bold">${m.home}</span></div><div style="color:#facc15;font-weight:bold">${m.homeScore}-${m.awayScore}</div><div class="teamRow" style="justify-content:flex-end"><span style="font-size:13px;font-weight:bold">${m.away}</span><img src="${m.awayLogo}"></div></div></div>`).join('');
 }
-
-function renderList(matches){
-  const box = document.getElementById('listView');
-  if(matches.length===0){ box.innerHTML = '<div style="padding:30px; text-align:center">Babu wasanni a wannan rana</div>'; return; }
-  box.innerHTML = matches.map(m=>`
-    <div class="card" onclick="openMatch('${m.id}')">
-      <div style="font-size:10px; color:#facc15; margin-bottom:6px">${m.league} • ${m.time} ${m.isLive?'🔴 LIVE':''}</div>
-      <div class="matchRow">
-        <div class="teamRow"><img src="${m.homeLogo}" onerror="this.src='https://ui-avatars.com/api/?name=${m.home}'"><div class="teamName">${m.home}</div></div>
-        <div class="centerBox"><div class="vs">VS</div><div class="score">${m.homeScore} - ${m.awScore||m.awayScore}</div></div>
-        <div class="teamRow" style="justify-content:flex-end"><div class="teamName">${m.away}</div><img src="${m.awayLogo}" onerror="this.src='https://ui-avatars.com/api/?name=${m.away}'"></div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function filterLeague(id, el){
-  document.querySelectorAll('.ltab').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  if(id==='all') renderList(allMatches);
-  else renderList(allMatches.filter(m=>m.leagueId===id));
-}
-
-// Formation data
-const formations = {
-  'Real Madrid': [{n:'Mbappe',num:9,img:'https://media.api-sports.io/football/players/278.png'}],
-  'Barcelona': [{n:'Lewandowski',num:9,img:'https://media.api-sports.io/football/players/88.png'}],
-  'Deportivo': [{n:'Mella',num:9,img:'https://media.api-sports.io/football/players/47211.png'}],
-  'Levante': [{n:'Romero',num:9,img:'https://media.api-sports.io/football/players/1630.png'}],
-};
-
-function openMatch(id){
-  const m = allMatches.find(x=>x.id===id);
-  document.getElementById('listView').style.display='none';
-  document.getElementById('detailView').style.display='block';
-  document.getElementById('detailCard').innerHTML = `
-    <div class="card">
-      <div style="font-size:12px; color:#facc15">${m.league} • ${m.time}</div>
-      <div class="matchRow" style="margin-top:10px">
-        <div class="teamRow"><img src="${m.homeLogo}"><div class="teamName">${m.home}</div></div>
-        <div class="centerBox"><div class="score" style="font-size:18px">${m.homeScore} - ${m.awayScore}</div><div class="vs">${m.status}</div></div>
-        <div class="teamRow" style="justify-content:flex-end"><div class="teamName">${m.away}</div><img src="${m.awayLogo}"></div>
-      </div>
-      <div style="margin-top:10px; background:#facc15; color:black; padding:6px; border-radius:6px; font-size:11px; text-align:center; font-weight:bold">✅ Formation + Real Photos - Predicted (Match Not Started Fix)</div>
-    </div>
-  `;
-  // Simple formation render
-  const homePlayers = [
-    [{n:m.home+' FW', num:9, img:m.homeLogo}],
-    [{n:'MF 1',num:10,img:m.homeLogo},{n:'MF 2',num:8,img:m.homeLogo},{n:'MF 3',num:11,img:m.homeLogo}],
-    [{n:'DM 1',num:6,img:m.homeLogo},{n:'DM 2',num:5,img:m.homeLogo},{n:'DM 3',num:14,img:m.homeLogo}],
-    [{n:'DF 1',num:3,img:m.homeLogo},{n:'DF 2',num:4,img:m.homeLogo},{n:'DF 3',num:2,img:m.homeLogo},{n:'DF 4',num:23,img:m.homeLogo}],
-    [{n:'GK',num:1,img:m.homeLogo}]
-  ];
-  let html = `<div style="color:white; text-align:center; font-weight:bold; z-index:2; position:relative">${m.home} - 4-3-3</div>`;
-  homePlayers.forEach(row=>{
-    html+=`<div class="row">`+row.map(p=>`<div class="player"><img src="${p.img}"><div class="pName">${p.n}</div><div class="pNum">#${p.num}</div></div>`).join('')+`</div>`;
-  });
-  document.getElementById('formationBox').innerHTML = html;
-  window.scrollTo(0,0);
-}
-function showList(){
-  document.getElementById('listView').style.display='block';
-  document.getElementById('detailView').style.display='none';
-}
-setInterval(()=>{ document.getElementById('clock').innerText = new Date().toLocaleTimeString(); },1000);
-buildLeagueTabs();
-loadDay('today', document.querySelector('[data-day="today"]'));
+loadDay('today',document.querySelector('.dtab.active'));
 </script>
 </body>
 </html>
