@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SENIOR UNLIMITED - Formation Fix</title>
+<style>
+body{margin:0; background:#0f172a; color:white; font-family:Arial}
+.top{background:#0a0f1f; padding:12px; border-bottom:2px solid #facc15; display:flex; justify-content:space-between; align-items:center}
+.top h1{margin:0; color:#facc15; font-size:18px}
+.tabs{display:flex; gap:8px; padding:10px; background:#0f172a}
+.tab{background:#1e293b; border:1px solid #facc15; color:#facc15; padding:8px 16px; border-radius:20px; cursor:pointer}
+.tab.active{background:#facc15; color:black}
+.card{background:#1e293b; margin:12px; border-radius:15px; padding:15px; border:1px solid #334155}
+.match-header{display:flex; justify-content:space-around; align-items:center; margin-bottom:15px}
+.team{text-align:center}
+.team img{width:60px; height:60px; background:white; border-radius:50%; padding:5px}
+.score{background:#facc15; color:black; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin:5px auto 0}
+.vs{color:#94a3b8; font-size:14px}
+#pitch{background:linear-gradient(180deg,#4CAF50,#2E7D32); border-radius:15px; padding:10px 5px 30px 5px; position:relative; margin-top:15px; min-height:480px}
+.line{position:absolute; border:2px solid rgba(255,255,255,.5); left:3%; right:3%; top:2%; bottom:3%; border-radius:5px}
+.center{position:absolute; width:70px; height:70px; border:2px solid rgba(255,255,255,.5); border-radius:50%; left:50%; top:0; transform:translateX(-50%)}
+.centerLine{position:absolute; height:2px; background:rgba(255,255,255,.5); left:3%; right:3%; top:50%}
+.box{position:absolute; width:45%; height:18%; border:2px solid rgba(255,255,255,.5); left:50%; bottom:0; transform:translateX(-50%); border-bottom:none}
+.row{display:flex; justify-content:space-around; margin:14px 0; position:relative; z-index:2}
+.player{text-align:center; width:70px}
+.player img{width:48px; height:48px; border-radius:50%; border:2px solid white; background:white; object-fit:cover}
+.pName{font-size:10px; font-weight:bold; margin-top:3px; text-shadow:0 1px 2px black; line-height:11px}
+.pNum{background:rgba(0,0,0,.5); border-radius:8px; padding:1px 5px; font-size:9px; display:inline-block; margin-top:2px}
+.formation-title{color:white; text-align:center; font-weight:bold; position:relative; z-index:2; margin-bottom:5px; font-size:13px}
+</style>
+</head>
+<body>
+<div class="top"><h1>SENIOR UNLIMITED<br><span style="font-size:10px; color:#94a3b8">LIVE FOOTBALL • LOGOS + FORMATION</span></h1><div style="color:#22c55e; font-size:10px">● LIVE SCORES</div></div>
+<div class="tabs"><div class="tab active">Home</div><div class="tab">Leagues</div><div class="tab">Match Detail</div></div>
+
+<div class="card" id="mainCard">
+  <div class="match-header">
+    <div class="team"><img id="homeLogo" src=""><div id="homeName">Deportivo</div><div class="score">0</div></div>
+    <div class="vs">VS<br><span id="status" style="font-size:11px">Predicted Lineup</span></div>
+    <div class="team"><img id="awayLogo" src=""><div id="awayName">Levante</div><div class="score">0</div></div>
+  </div>
+
+  <div style="background:#facc15; color:black; padding:8px; border-radius:8px; font-weight:bold; text-align:center; font-size:12px">✅ Formation + Real Photos - Available NOW (Match Not Started Fix)</div>
+
+  <div id="pitch">
+    <div class="line"></div><div class="center"></div><div class="centerLine"></div><div class="box"></div>
+    <div id="formationBox"></div>
+  </div>
+</div>
+
+<script>
+const teamData = {
+  deportivo: {logo:"https://media.api-sports.io/football/teams/978.png", players:[
+    [{n:"Mella",num:9,img:"https://media.api-sports.io/football/players/47211.png"}],
+    [{n:"Yeremay",num:10,img:"https://media.api-sports.io/football/players/18734.png"},{n:"Lucas",num:8,img:"https://media.api-sports.io/football/players/1479.png"},{n:"Mario",num:11,img:"https://media.api-sports.io/football/players/1480.png"}],
+    [{n:"Villares",num:6,img:"https://media.api-sports.io/football/players/1481.png"},{n:"Jose Angel",num:5,img:"https://media.api-sports.io/football/players/1482.png"},{n:"Peto",num:14,img:"https://media.api-sports.io/football/players/1483.png"}],
+    [{n:"Navarro",num:3,img:"https://media.api-sports.io/football/players/1484.png"},{n:"Pablo",num:4,img:"https://media.api-sports.io/football/players/1485.png"},{n:"Jaime",num:2,img:"https://media.api-sports.io/football/players/1486.png"},{n:"Ximo",num:23,img:"https://media.api-sports.io/football/players/1487.png"}],
+    [{n:"German",num:1,img:"https://media.api-sports.io/football/players/1488.png"}]
+  ]},
+  levante: {logo:"https://media.api-sports.io/football/teams/957.png", players:[
+    [{n:"Romero",num:9,img:"https://media.api-sports.io/football/players/1630.png"}],
+    [{n:"Brugui",num:7,img:"https://media.api-sports.io/football/players/1631.png"},{n:"Pablo M.",num:10,img:"https://media.api-sports.io/football/players/1632.png"},{n:"Carlos A.",num:11,img:"https://media.api-sports.io/football/players/1633.png"}],
+    [{n:"Oriol Rey",num:6,img:"https://media.api-sports.io/football/players/1634.png"},{n:"Iborra",num:8,img:"https://media.api-sports.io/football/players/1635.png"},{n:"Algobia",num:14,img:"https://media.api-sports.io/football/players/1636.png"}],
+    [{n:"Pampin",num:3,img:"https://media.api-sports.io/football/players/1637.png"},{n:"Cabello",num:4,img:"https://media.api-sports.io/football/players/1638.png"},{n:"Dela",num:5,img:"https://media.api-sports.io/football/players/1639.png"},{n:"Andres",num:2,img:"https://media.api-sports.io/football/players/1640.png"}],
+    [{n:"Fernandez",num:13,img:"https://media.api-sports.io/football/players/1641.png"}]
+  ]}
+};
+
+function renderFormation(teamKey, isHome){
+  const team = teamData[teamKey];
+  document.getElementById(isHome?'homeLogo':'awayLogo').src = team.logo;
+  let html = `<div class="formation-title">${isHome?'Deportivo':'Levante'} - 4-3-3 Predicted</div>`;
+  team.players.forEach(row=>{
+    html+=`<div class="row">`;
+    row.forEach(p=>{
+      html+=`<div class="player"><img src="${p.img}" onerror="this.src='https://ui-avatars.com/api/?name=${p.n}&background=random&color=fff'"><div class="pName">${p.n}</div><div class="pNum">#${p.num}</div></div>`;
+    });
+    html+=`</div>`;
+  });
+  return html;
+}
+
+// Nuna Deportivo da Levante - KO DA wasan bai fara ba!
+document.getElementById('homeLogo').src = teamData.deportivo.logo;
+document.getElementById('awayLogo').src = teamData.levante.logo;
+document.getElementById('formationBox').innerHTML = renderFormation('deportivo', true) + '<div style="height:20px"></div>' + renderFormation('levante', false).replace('Deportivo','Levante');
+</script>
+</body>
+</html>
