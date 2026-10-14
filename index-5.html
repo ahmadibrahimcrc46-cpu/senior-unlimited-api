@@ -26,16 +26,16 @@ header img{width:42px;height:42px;background:var(--primary);border-radius:12px;p
 <header>
 <button class="back-btn" onclick="goBack()">←</button>
 <img src="./logo.png.PNG" onerror="this.style.display='none'">
-<div><div style="color:var(--primary);font-weight:bold">SENIOR UNLIMITED</div><div style="font-size:10px;color:#94a3b8">INDEX-5 LIVE REAL</div></div>
+<div><div style="color:var(--primary);font-weight:bold">SENIOR UNLIMITED</div><div style="font-size:10px;color:#94a3b8">INDEX-5 LIVE REAL V2</div></div>
 </header>
-<div style="display:flex;justify-content:space-between;padding:5px 10px;color:#22c55e;font-size:12px;font-weight:bold"><span><span class="live-dot"></span> LIVE REAL</span><span id="clock"></span><span id="api-status">Connecting...</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 10px;color:#22c55e;font-size:11px;font-weight:bold"><span><span class="live-dot"></span> LIVE REAL</span><span id="clock"></span><span id="api-status">Connecting...</span></div>
 <div class="tabs">
 <button class="active" id="b-home" onclick="openPage('home',this)">Home</button>
 <button id="b-leagues" onclick="openPage('leagues',this)">Leagues</button>
 <button id="b-table" onclick="openPage('table',this)">Table</button>
 </div>
 <div id="home" class="page active"><div class="card"><h3 style="color:var(--primary)">🔥 Real Live Matches</h3><div id="matches">Loading real data... ⏳</div></div></div>
-<div id="leagues" class="page"><div class="card"><h3 style="color:var(--primary)">🏆 Leagues</h3><p>PL - Premier League</p><p>PD - LaLiga</p><p>BL1 - Bundesliga</p><p>SA - Serie A</p><p>FL1 - Ligue 1</p><p>CL - Champions League</p></div></div>
+<div id="leagues" class="page"><div class="card"><h3 style="color:var(--primary)">🏆 Leagues</h3><p>PL, PD, BL1, SA, FL1, CL</p></div></div>
 <div id="table" class="page"><div class="card"><h3 style="color:var(--primary)">🥇 Premier League Table</h3><div id="standings">Loading...</div></div></div>
 <script>
 const API_TOKEN = "ae0af64ba1e841a7887c7486d40f2d32";
@@ -59,41 +59,55 @@ function goBack(){
   let b=document.getElementById('b-'+prev); if(b) b.classList.add('active');
  } else {window.location.href='./index-4.html';}
 }
-async function fetchWithProxy(url){
-  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
-  const res = await fetch(proxyUrl, {headers:{'X-Auth-Token':API_TOKEN}});
-  if(!res.ok) throw new Error('API '+res.status);
-  return res.json();
+
+async function fetchReal(url){
+  const proxies = [
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => `https://thingproxy.freeboard.name/fetch/${u}`,
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`
+  ];
+  let lastErr;
+  for(let p of proxies){
+    try{
+      const proxyUrl = p(url);
+      const res = await fetch(proxyUrl, {headers:{'X-Auth-Token':API_TOKEN}});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const text = await res.text();
+      try { return JSON.parse(text); } catch { throw new Error('Not JSON'); }
+    }catch(e){ lastErr=e; continue; }
+  }
+  throw lastErr;
 }
+
 async function loadMatches(){
  const el=document.getElementById('matches');
  const status=document.getElementById('api-status');
  try{
-  status.textContent="Fetching REAL...";
-  let data = await fetchWithProxy('https://api.football-data.org/v4/matches?status=LIVE,IN_PLAY,PAUSED');
+  status.textContent="Fetching REAL V2...";
+  let data = await fetchReal('https://api.football-data.org/v4/matches?status=LIVE,IN_PLAY,PAUSED');
   status.textContent="REAL DATA ✅";
   if(!data.matches || data.matches.length===0){
     el.innerHTML="<p>No LIVE now. Showing TODAY:</p>";
     const today = new Date().toISOString().split('T')[0];
-    let data2 = await fetchWithProxy(`https://api.football-data.org/v4/matches?dateFrom=${today}&dateTo=${today}`);
+    let data2 = await fetchReal(`https://api.football-data.org/v4/matches?dateFrom=${today}&dateTo=${today}`);
     if(data2.matches && data2.matches.length>0){
-      el.innerHTML+=data2.matches.slice(0,15).map(m=>`<div class="match"><span>${m.homeTeam.shortName||m.homeTeam.name} vs ${m.awayTeam.shortName||m.awayTeam.name}<br><small style="color:#94a3b8">${m.competition.name} • ${new Date(m.utcDate).toLocaleTimeString()}</small></span><span class="score">${m.score.fullTime.home??'-'}-${m.score.fullTime.away??'-'}<br><small>${m.status}</small></span></div>`).join('');
-    } else { el.innerHTML+="<p>Babu wasa yau. 🥲 Gwada gobe!</p>";}
+      el.innerHTML+=data2.matches.slice(0,15).map(m=>`<div class="match"><span>${(m.homeTeam.shortName||m.homeTeam.name)} vs ${(m.awayTeam.shortName||m.awayTeam.name)}<br><small style="color:#94a3b8">${m.competition.name} • ${new Date(m.utcDate).toLocaleTimeString()}</small></span><span class="score">${m.score.fullTime.home??'-'}-${m.score.fullTime.away??'-'}<br><small>${m.status}</small></span></div>`).join('');
+    } else { el.innerHTML+="<p>Babu wasa yau 🥲</p>";}
   } else {
     el.innerHTML=data.matches.map(m=>`<div class="match"><span>${m.homeTeam.shortName} vs ${m.awayTeam.shortName}<br><small style="color:#22c55e">● LIVE ${m.competition.name}</small></span><span class="score">${m.score.fullTime.home??m.score.halfTime.home??0}-${m.score.fullTime.away??m.score.halfTime.away??0} ${m.minute||''}'</span></div>`).join('');
   }
  } catch(e){
   status.textContent="Error: "+e.message;
-  el.innerHTML=`<p style="color:#f87171">Error: ${e.message}</p><p>Amma Token dinka na gaske ne! ✅</p><div style="margin-top:10px"><button onclick="loadMatches()" style="background:#facc15;color:#000;padding:8px 16px;border:none;border-radius:20px;font-weight:bold">Retry 🔄</button></div>`;
+  el.innerHTML=`<p style="color:#f87171">Error: ${e.message}<br>CORS Proxy ya kasa. Amma Token ✅</p><button onclick="loadMatches()" style="background:#facc15;color:#000;padding:8px 16px;border:none;border-radius:20px;font-weight:bold;margin-top:10px">Retry 🔄</button>`;
  }
 }
 async function loadTable(){
  const el=document.getElementById('standings');
  try{
-  let data = await fetchWithProxy('https://api.football-data.org/v4/competitions/PL/standings');
+  let data = await fetchReal('https://api.football-data.org/v4/competitions/PL/standings');
   const table=data.standings[0].table;
   el.innerHTML=table.slice(0,10).map(t=>`<div class="match"><span>${t.position}. ${t.team.shortName}</span><span class="score">${t.points} Pts</span></div>`).join('');
- } catch(e){ el.innerHTML="Table loading error - try again"; }
+ } catch(e){ el.innerHTML="Table error - retry"; }
 }
 setInterval(()=>{let c=document.getElementById('clock'); if(c) c.innerText=new Date().toLocaleTimeString();},1000);
 loadMatches();
