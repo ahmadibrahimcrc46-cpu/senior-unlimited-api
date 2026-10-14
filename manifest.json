@@ -1,0 +1,16 @@
+{
+  "name": "ScoreSphere - Live Football",
+  "short_name": "ScoreSphere",
+  "description": "Live Football Scores - Real Time",
+  "start_url": "/senior-unlimited-api/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/53/53283.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
