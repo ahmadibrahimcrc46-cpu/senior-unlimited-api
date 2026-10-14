@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Senior Unlimited - LIVE</title>
+<meta name="theme-color" content="#0f172a">
+<style>
+:root{--primary:#facc15;--bg:#0f172a;--card:#1e293b;--text:#fff}
+body{margin:0;font-family:Arial;background:var(--bg);color:var(--text);padding-bottom:80px}
+header{background:#020617;padding:14px;display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--primary);position:sticky;top:0;z-index:10}
+header img{width:42px;height:42px;background:var(--primary);border-radius:12px;padding:3px}
+.tabs{display:flex;gap:8px;padding:10px;background:#020617;overflow-x:auto;white-space:nowrap;position:sticky;top:71px;z-index:9}
+.tabs button{background:var(--card);color:var(--primary);border:1px solid var(--primary);padding:7px 16px;border-radius:20px;font-size:12px;font-weight:bold}
+.tabs button.active{background:var(--primary);color:#000}
+.page{display:none;padding:10px}.page.active{display:block}
+.card{background:var(--card);margin:10px 0;padding:14px;border-radius:14px;border:1px solid #334155}
+.match{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #334155}
+.score{background:var(--primary);color:#000;padding:5px 12px;border-radius:20px;font-weight:bold;font-size:12px}
+.back-btn{background:none;border:1px solid var(--primary);color:var(--primary);width:32px;height:32px;border-radius:50%;font-size:16px}
+.live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+</style>
+</head>
+<body>
+<header>
+<button class="back-btn" onclick="goBack()">←</button>
+<img src="./logo.png.PNG" onerror="this.style.display='none'">
+<div><div style="color:var(--primary);font-weight:bold">SENIOR UNLIMITED</div><div style="font-size:10px;color:#94a3b8">INDEX-5 LIVE REAL</div></div>
+</header>
+<div style="display:flex;justify-content:space-between;padding:5px 10px;color:#22c55e;font-size:12px;font-weight:bold"><span><span class="live-dot"></span> LIVE REAL</span><span id="clock"></span><span id="api-status">Connecting...</span></div>
+<div class="tabs">
+<button class="active" id="b-home" onclick="openPage('home',this)">Home</button>
+<button id="b-leagues" onclick="openPage('leagues',this)">Leagues</button>
+<button id="b-table" onclick="openPage('table',this)">Table</button>
+</div>
+<div id="home" class="page active"><div class="card"><h3 style="color:var(--primary)">🔥 Real Live Matches</h3><div id="matches">Loading real data... ⏳</div></div></div>
+<div id="leagues" class="page"><div class="card"><h3 style="color:var(--primary)">🏆 Leagues (Free Tier)</h3><p>PL - Premier League</p><p>PD - LaLiga</p><p>BL1 - Bundesliga</p><p>SA - Serie A</p><p>FL1 - Ligue 1</p><p>CL - Champions League</p><div id="league-matches"></div></div></div>
+<div id="table" class="page"><div class="card"><h3 style="color:var(--primary)">🥇 Table</h3><div id="standings">Loading...</div></div></div>
+<script>
+const API_TOKEN = "ae0af64ba1e841a7887c7486d40f2d32";
+let historyStack = ['home'];
+function openPage(id,btn){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+ if(btn) btn.classList.add('active');
+ if(historyStack[historyStack.length-1]!==id){historyStack.push(id); history.pushState({page:id},"","#"+id);}
+ if(id==='home') loadMatches();
+ if(id==='table') loadTable();
+}
+function goBack(){
+ if(historyStack.length>1){
+  historyStack.pop();
+  let prev=historyStack[historyStack.length-1];
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(prev).classList.add('active');
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+  let b=document.getElementById('b-'+prev); if(b) b.classList.add('active');
+ } else {window.location.href='./index-4.html';}
+}
+async function loadMatches(){
+ const el=document.getElementById('matches');
+ const status=document.getElementById('api-status');
+ try{
+  status.textContent="Fetching...";
+  const res=await fetch('https://api.football-data.org/v4/matches?status=LIVE,IN_PLAY,PAUSED', {headers:{'X-Auth-Token':API_TOKEN}});
+  if(!res.ok) throw new Error(res.status);
+  const data=await res.json();
+  status.textContent="REAL DATA ✅";
+  if(!data.matches || data.matches.length===0){
+    el.innerHTML="<p>No live now. Showing today:</p>";
+    const res2=await fetch('https://api.football-data.org/v4/matches?dateFrom='+new Date().toISOString().split('T')[0]+'&dateTo='+new Date().toISOString().split('T')[0], {headers:{'X-Auth-Token':API_TOKEN}});
+    const data2=await res2.json();
+    if(data2.matches && data2.matches.length>0){
+      el.innerHTML+=data2.matches.slice(0,10).map(m=>`<div class="match"><span>${m.homeTeam.shortName||m.homeTeam.name} vs ${m.awayTeam.shortName||m.awayTeam.name}<br><small style="color:#94a3b8">${m.competition.name}</small></span><span class="score">${m.score.fullTime.home??0}-${m.score.fullTime.away??0} ${m.status}</span></div>`).join('');
+    } else { el.innerHTML="<p>Babu wasa yau. Gwada gobe!</p>";}
+  } else {
+    el.innerHTML=data.matches.map(m=>`<div class="match"><span>${m.homeTeam.shortName} vs ${m.awayTeam.shortName}<br><small style="color:#22c55e">● ${m.competition.name}</small></span><span class="score">${m.score.fullTime.home??m.score.halfTime.home??0}-${m.score.fullTime.away??m.score.halfTime.away??0} ${m.minute||''}'</span></div>`).join('');
+  }
+ } catch(e){
+  status.textContent="Error: "+e.message;
+  el.innerHTML=`<p style="color:#f87171">API Error: ${e.message}<br>Free tier yana da limit 10/min. Jira minti 1 ka sake gwada.</p><p>Amma Token dinka na gaske ne! ✅</p>`;
+ }
+}
+async function loadTable(){
+ const el=document.getElementById('standings');
+ try{
+  const res=await fetch('https://api.football-data.org/v4/competitions/PL/standings', {headers:{'X-Auth-Token':API_TOKEN}});
+  const data=await res.json();
+  const table=data.standings[0].table;
+  el.innerHTML=table.slice(0,10).map(t=>`<div class="match"><span>${t.position}. ${t.team.shortName}</span><span class="score">${t.points} Pts</span></div>`).join('');
+ } catch(e){ el.innerHTML="Loading table... limit reached, try later"; }
+}
+setInterval(()=>{let c=document.getElementById('clock'); if(c) c.innerText=new Date().toLocaleTimeString();},1000);
+loadMatches();
+</script>
+</body>
+</html>
