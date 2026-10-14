@@ -1,0 +1,8 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Core - Permanent</title><style>body{background:#0f172a;color:#fff;font-family:Arial;padding:20px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.box{background:#1e293b;padding:15px;border-radius:10px;border-left:4px solid #22c55e}</style></head><body>
+<h2 style="color:#22c55e">CORE SYSTEM - PERMANENT (Folder 1)</h2><p>Ba za a taba wannan ba!</p>
+<div class="grid">
+<div class="box">🏠 Home Flow</div><div class="box">⚽ Clubs</div><div class="box">📋 Lineups</div><div class="box">⚙️ Setting</div><div class="box">👤 Profile</div><div class="box">📊 Status</div><div class="box">🏆 Leagues</div><div class="box">🔄 Transfers</div><div class="box">📈 Match Stats</div><div class="box">📰 News</div><div class="box">🌙 Dark Mode</div><div class="box">🔔 Notifications</div><div class="box">🥇 Ranking</div><div class="box">🏅 Competitions</div>
+</div>
+<p style="margin-top:20px;color:#facc15">Wannan core ne, ana kiran sa daga lab/</p>
+<script>localStorage.setItem('core_version','v1.0 PERMANENT');</script>
+</body></html>
