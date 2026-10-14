@@ -1,117 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SENIOR UNLIMITED</title>
-<meta name="theme-color" content="#0f172a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Senior Unlimited">
-<link rel="apple-touch-icon" href="./logo.png.PNG">
-<link rel="icon" href="./logo.png.PNG">
-<style>
-:root{--primary:#facc15;--bg:#0f172a;--card:#1e293b;--text:#fff}
-body{margin:0;font-family:Arial;background:var(--bg);color:var(--text);padding-bottom:80px}
-header{background:linear-gradient(90deg,#020617,var(--card));padding:14px;display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--primary);position:sticky;top:0;z-index:10}
-header img{width:42px;height:42px;background:var(--primary);border-radius:12px;padding:3px}
-.tabs{display:flex;gap:8px;padding:10px;background:#020617;overflow-x:auto;white-space:nowrap;position:sticky;top:71px;z-index:9}
-.tabs button{background:var(--card);color:var(--primary);border:1px solid var(--primary);padding:7px 16px;border-radius:20px;font-size:12px;font-weight:bold}
-.tabs button.active{background:var(--primary);color:#000}
-.page{display:none;padding:10px}.page.active{display:block}
-.card{background:var(--card);margin:10px 0;padding:14px;border-radius:14px;border:1px solid #334155}
-.match{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #334155}
-.score{background:var(--primary);color:#000;padding:5px 12px;border-radius:20px;font-weight:bold;font-size:12px}
-.odds span{background:#0f172a;border:1px solid var(--primary);padding:3px 8px;border-radius:6px;font-size:10px;color:var(--primary);margin-right:4px}
-.club{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #334155}
-.badge{width:30px;height:30px;background:var(--primary);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#000;font-weight:bold;margin-right:8px}
-.refresh{position:fixed;bottom:20px;right:20px;background:var(--primary);color:#000;width:55px;height:55px;border-radius:50%;border:none;font-size:22px;font-weight:bold;box-shadow:0 4px 15px rgba(0,0,0,0.5)}
-.top-bar{display:flex;justify-content:space-between;align-items:center;padding:0 10px;color:#22c55e;font-weight:bold;font-size:13px}
-</style>
-</head>
-<body>
-
-<header>
-<img src="./logo.png.PNG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/5021/5021091.png'">
-<div><div style="color:var(--primary);font-weight:bold;font-size:20px;letter-spacing:1px">SENIOR UNLIMITED</div><div style="font-size:10px;letter-spacing:3px;color:#94a3b8">FOOTBALL LIVE • OFFICIAL</div></div>
-</header>
-
-<div class="top-bar"><span>● LIVE</span><span id="clock"></span><span>INDEX-3 LAB</span></div>
-
-<div class="tabs">
-<button class="active" onclick="openPage('home',this)">Home Flow</button>
-<button onclick="openPage('clubs',this)">Clubs</button>
-<button onclick="openPage('lineups',this)">Lineups</button>
-<button onclick="openPage('leagues',this)">Leagues</button>
-<button onclick="openPage('transfers',this)">Transfers</button>
-<button onclick="openPage('stats',this)">Match Stats</button>
-<button onclick="openPage('news',this)">News</button>
-<button onclick="openPage('ranking',this)">Ranking</button>
-<button onclick="openPage('competitions',this)">Competitions</button>
-<button onclick="openPage('profile',this)">Profile</button>
-<button onclick="openPage('settings',this)">Setting</button>
-</div>
-
-<!-- HOME -->
-<div id="home" class="page active">
-<div class="card">
-<h3 style="color:var(--primary);margin:0 0 10px 0">🔥 Today - Senior Unlimited Special</h3>
-<div class="match"><div><b>Man City vs Arsenal</b><div style="margin-top:5px" class="odds"><span>1:2.10</span><span>X:3.40</span><span>2:3.20</span></div></div><div class="score">2-1 | 78'</div></div>
-<div class="match"><div><b>Barca vs Real Madrid</b><div class="odds"><span>1:2.50</span><span>2:2.75</span><span>Over:1.85</span></div></div><div class="score">3-0 | FT</div></div>
-<div class="match"><div><b>Senior FC vs Unlimited FC</b><div class="odds"><span>1:1.85</span><span>X:3.20</span></div></div><div class="score">LIVE</div></div>
-</div>
-<div class="card"><b>🔔 Notifications:</b> Ranking updated! • Transfer news • Dark mode ON</div>
-</div>
-
-<!-- CLUBS -->
-<div id="clubs" class="page"><div class="card"><h3 style="color:var(--primary)">⚽ Clubs</h3><div class="club"><span><span class="badge">M</span>Man City</span><span>42 Pts</span></div><div class="club"><span><span class="badge">A</span>Arsenal</span><span>40 Pts</span></div><div class="club"><span><span class="badge">B</span>Barcelona</span><span>38 Pts</span></div><div class="club"><span><span class="badge">S</span>Senior Unlimited FC</span><span>50 Pts 👑</span></div></div></div>
-
-<!-- LINEUPS -->
-<div id="lineups" class="page"><div class="card"><h3 style="color:var(--primary)">📋 Lineups - Senior Unlimited FC</h3><p>GK: Senior 1</p><p>DEF: Unlimited, Gold, Black</p><p>MID: Senior 8, 10, 11</p><p>FW: Senior Unlimited 9 (C)</p><p style="color:#22c55e">Status: Ready • Formation 4-3-3</p></div></div>
-
-<!-- LEAGUES -->
-<div id="leagues" class="page"><div class="card"><h3 style="color:var(--primary)">🏆 Leagues</h3><p>Premier League • LaLiga • Serie A • Senior Unlimited League (NEW)</p></div></div>
-
-<!-- TRANSFERS -->
-<div id="transfers" class="page"><div class="card"><h3 style="color:var(--primary)">🔄 Transfers</h3><p>Senior Unlimited signs New Striker - €50M</p><p>Unlimited FC -> Man City - Loan</p></div></div>
-
-<!-- STATS -->
-<div id="stats" class="page"><div class="card"><h3 style="color:var(--primary)">📈 Match Stats</h3><p>Possession: 60% - 40%</p><p>Shots: 15 - 7</p><p>Corners: 8 - 2</p><p>xG: 2.3 - 0.9</p></div></div>
-
-<!-- NEWS -->
-<div id="news" class="page"><div class="card"><h3 style="color:var(--primary)">📰 News</h3><p>Senior Unlimited launches official app! 🚀</p><p>Dark mode & notifications now available.</p></div></div>
-
-<!-- RANKING -->
-<div id="ranking" class="page"><div class="card"><h3 style="color:var(--primary)">🥇 Ranking</h3><p>1. Senior Unlimited FC - 50 pts</p><p>2. Man City - 42 pts</p><p>3. Arsenal - 40 pts</p></div></div>
-
-<!-- COMPETITIONS -->
-<div id="competitions" class="page"><div class="card"><h3 style="color:var(--primary)">🏅 Competitions</h3><p>Senior Unlimited Cup • Champions League • Ranking Battle</p></div></div>
-
-<!-- PROFILE -->
-<div id="profile" class="page"><div class="card"><h3 style="color:var(--primary)">👤 Profile</h3><p>Name: Senior Unlimited</p><p>Status: LAB MODE - INDEX-3</p><p>Core: OK | Brand: OK | Lab: EDITABLE</p><p>Logo: logo.png.PNG</p></div></div>
-
-<!-- SETTINGS -->
-<div id="settings" class="page"><div class="card"><h3 style="color:var(--primary)">⚙️ Settings</h3><p><button onclick="toggleDark()" style="background:var(--primary);border:none;padding:8px 15px;border-radius:8px;font-weight:bold">🌙 Dark Mode Toggle</button></p><p><button onclick="notifyMe()" style="background:#1e293b;color:var(--primary);border:1px solid var(--primary);padding:8px 15px;border-radius:8px">🔔 Test Notification</button></p><p>Version: INDEX-3 LAB v2.0 - All features included</p><p>Core: index-1.html PERMANENT<br>Brand: index-2.html PERMANENT<br>Lab: index-3.html EDITABLE</p></div></div>
-
-<button class="refresh" onclick="location.reload()">↻</button>
-
-<script>
 function openPage(id,btn){
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
  document.getElementById(id).classList.add('active');
  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
+ // Save to history so Back button works
+ history.pushState({page:id}, "", "#"+id);
+ localStorage.setItem('lastPage', id);
 }
-function toggleDark(){
- const isDark = document.documentElement.style.getPropertyValue('--bg')==='#f1f5f9';
- if(isDark){ document.documentElement.style.setProperty('--bg','#0f172a'); document.documentElement.style.setProperty('--card','#1e293b'); document.documentElement.style.setProperty('--text','#fff');}
- else{ document.documentElement.style.setProperty('--bg','#f1f5f9'); document.documentElement.style.setProperty('--card','#fff'); document.documentElement.style.setProperty('--text','#0f172a');}
- localStorage.setItem('darkMode', isDark?'light':'dark');
-}
-function notifyMe(){ if('Notification' in window){ Notification.requestPermission().then(p=>{ if(p==='granted') new Notification('Senior Unlimited',{body:'Ranking updated! Live match!'});}); } alert('🔔 Senior Unlimited Notification: App is live!');}
-setInterval(()=>{document.getElementById('clock').innerText=new Date().toLocaleTimeString();},1000);
-// PWA manifest
-const manifest={name:"Senior Unlimited",short_name:"Senior Unlimited",start_url:"./index-3.html",display:"standalone",background_color:"#0f172a",theme_color:"#0f172a",icons:[{src:"./logo.png.PNG",sizes:"512x512",type:"image/png"}]}; const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'}); const link=document.createElement('link'); link.rel='manifest'; link.href=URL.createObjectURL(blob); document.head.appendChild(link);
-if('serviceWorker' in navigator){ const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());self.addEventListener('fetch',e=>e.respondWith(fetch(e.request,{cache:'no-store'})));`; navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).then(r=>setInterval(()=>r.update(),30000));}
-</script>
-</body>
-</html>
+// Back button fix
+window.addEventListener('popstate', function(e){
+  let page = location.hash.replace('#','') || localStorage.getItem('lastPage') || 'home';
+  if(!page) page='home';
+  let btn = document.querySelector(`.tabs button[onclick*="'${page}'"]`);
+  if(btn){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById(page)?.classList.add('active');
+    document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+});
+// On load, open last page
+window.addEventListener('load', ()=>{
+  let hash = location.hash.replace('#','');
+  if(hash){
+    let btn = document.querySelector(`.tabs button[onclick*="'${hash}'"]`);
+    if(btn) openPage(hash, btn);
+  }
+});
