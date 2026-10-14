@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Senior Unlimited - LIVE</title>
+<title>Senior Unlimited - LIVE REAL</title>
 <meta name="theme-color" content="#0f172a">
 <style>
 :root{--primary:#facc15;--bg:#0f172a;--card:#1e293b;--text:#fff}
@@ -16,7 +16,7 @@ header img{width:42px;height:42px;background:var(--primary);border-radius:12px;p
 .page{display:none;padding:10px}.page.active{display:block}
 .card{background:var(--card);margin:10px 0;padding:14px;border-radius:14px;border:1px solid #334155}
 .match{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #334155}
-.score{background:var(--primary);color:#000;padding:5px 12px;border-radius:20px;font-weight:bold;font-size:12px}
+.score{background:var(--primary);color:#000;padding:5px 12px;border-radius:20px;font-weight:bold;font-size:12px;text-align:center}
 .back-btn{background:none;border:1px solid var(--primary);color:var(--primary);width:32px;height:32px;border-radius:50%;font-size:16px}
 .live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;animation:blink 1s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
@@ -35,8 +35,8 @@ header img{width:42px;height:42px;background:var(--primary);border-radius:12px;p
 <button id="b-table" onclick="openPage('table',this)">Table</button>
 </div>
 <div id="home" class="page active"><div class="card"><h3 style="color:var(--primary)">🔥 Real Live Matches</h3><div id="matches">Loading real data... ⏳</div></div></div>
-<div id="leagues" class="page"><div class="card"><h3 style="color:var(--primary)">🏆 Leagues (Free Tier)</h3><p>PL - Premier League</p><p>PD - LaLiga</p><p>BL1 - Bundesliga</p><p>SA - Serie A</p><p>FL1 - Ligue 1</p><p>CL - Champions League</p><div id="league-matches"></div></div></div>
-<div id="table" class="page"><div class="card"><h3 style="color:var(--primary)">🥇 Table</h3><div id="standings">Loading...</div></div></div>
+<div id="leagues" class="page"><div class="card"><h3 style="color:var(--primary)">🏆 Leagues</h3><p>PL - Premier League</p><p>PD - LaLiga</p><p>BL1 - Bundesliga</p><p>SA - Serie A</p><p>FL1 - Ligue 1</p><p>CL - Champions League</p></div></div>
+<div id="table" class="page"><div class="card"><h3 style="color:var(--primary)">🥇 Premier League Table</h3><div id="standings">Loading...</div></div></div>
 <script>
 const API_TOKEN = "ae0af64ba1e841a7887c7486d40f2d32";
 let historyStack = ['home'];
@@ -59,38 +59,41 @@ function goBack(){
   let b=document.getElementById('b-'+prev); if(b) b.classList.add('active');
  } else {window.location.href='./index-4.html';}
 }
+async function fetchWithProxy(url){
+  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
+  const res = await fetch(proxyUrl, {headers:{'X-Auth-Token':API_TOKEN}});
+  if(!res.ok) throw new Error('API '+res.status);
+  return res.json();
+}
 async function loadMatches(){
  const el=document.getElementById('matches');
  const status=document.getElementById('api-status');
  try{
-  status.textContent="Fetching...";
-  const res=await fetch('https://api.football-data.org/v4/matches?status=LIVE,IN_PLAY,PAUSED', {headers:{'X-Auth-Token':API_TOKEN}});
-  if(!res.ok) throw new Error(res.status);
-  const data=await res.json();
+  status.textContent="Fetching REAL...";
+  let data = await fetchWithProxy('https://api.football-data.org/v4/matches?status=LIVE,IN_PLAY,PAUSED');
   status.textContent="REAL DATA ✅";
   if(!data.matches || data.matches.length===0){
-    el.innerHTML="<p>No live now. Showing today:</p>";
-    const res2=await fetch('https://api.football-data.org/v4/matches?dateFrom='+new Date().toISOString().split('T')[0]+'&dateTo='+new Date().toISOString().split('T')[0], {headers:{'X-Auth-Token':API_TOKEN}});
-    const data2=await res2.json();
+    el.innerHTML="<p>No LIVE now. Showing TODAY:</p>";
+    const today = new Date().toISOString().split('T')[0];
+    let data2 = await fetchWithProxy(`https://api.football-data.org/v4/matches?dateFrom=${today}&dateTo=${today}`);
     if(data2.matches && data2.matches.length>0){
-      el.innerHTML+=data2.matches.slice(0,10).map(m=>`<div class="match"><span>${m.homeTeam.shortName||m.homeTeam.name} vs ${m.awayTeam.shortName||m.awayTeam.name}<br><small style="color:#94a3b8">${m.competition.name}</small></span><span class="score">${m.score.fullTime.home??0}-${m.score.fullTime.away??0} ${m.status}</span></div>`).join('');
-    } else { el.innerHTML="<p>Babu wasa yau. Gwada gobe!</p>";}
+      el.innerHTML+=data2.matches.slice(0,15).map(m=>`<div class="match"><span>${m.homeTeam.shortName||m.homeTeam.name} vs ${m.awayTeam.shortName||m.awayTeam.name}<br><small style="color:#94a3b8">${m.competition.name} • ${new Date(m.utcDate).toLocaleTimeString()}</small></span><span class="score">${m.score.fullTime.home??'-'}-${m.score.fullTime.away??'-'}<br><small>${m.status}</small></span></div>`).join('');
+    } else { el.innerHTML+="<p>Babu wasa yau. 🥲 Gwada gobe!</p>";}
   } else {
-    el.innerHTML=data.matches.map(m=>`<div class="match"><span>${m.homeTeam.shortName} vs ${m.awayTeam.shortName}<br><small style="color:#22c55e">● ${m.competition.name}</small></span><span class="score">${m.score.fullTime.home??m.score.halfTime.home??0}-${m.score.fullTime.away??m.score.halfTime.away??0} ${m.minute||''}'</span></div>`).join('');
+    el.innerHTML=data.matches.map(m=>`<div class="match"><span>${m.homeTeam.shortName} vs ${m.awayTeam.shortName}<br><small style="color:#22c55e">● LIVE ${m.competition.name}</small></span><span class="score">${m.score.fullTime.home??m.score.halfTime.home??0}-${m.score.fullTime.away??m.score.halfTime.away??0} ${m.minute||''}'</span></div>`).join('');
   }
  } catch(e){
   status.textContent="Error: "+e.message;
-  el.innerHTML=`<p style="color:#f87171">API Error: ${e.message}<br>Free tier yana da limit 10/min. Jira minti 1 ka sake gwada.</p><p>Amma Token dinka na gaske ne! ✅</p>`;
+  el.innerHTML=`<p style="color:#f87171">Error: ${e.message}</p><p>Amma Token dinka na gaske ne! ✅</p><div style="margin-top:10px"><button onclick="loadMatches()" style="background:#facc15;color:#000;padding:8px 16px;border:none;border-radius:20px;font-weight:bold">Retry 🔄</button></div>`;
  }
 }
 async function loadTable(){
  const el=document.getElementById('standings');
  try{
-  const res=await fetch('https://api.football-data.org/v4/competitions/PL/standings', {headers:{'X-Auth-Token':API_TOKEN}});
-  const data=await res.json();
+  let data = await fetchWithProxy('https://api.football-data.org/v4/competitions/PL/standings');
   const table=data.standings[0].table;
   el.innerHTML=table.slice(0,10).map(t=>`<div class="match"><span>${t.position}. ${t.team.shortName}</span><span class="score">${t.points} Pts</span></div>`).join('');
- } catch(e){ el.innerHTML="Loading table... limit reached, try later"; }
+ } catch(e){ el.innerHTML="Table loading error - try again"; }
 }
 setInterval(()=>{let c=document.getElementById('clock'); if(c) c.innerText=new Date().toLocaleTimeString();},1000);
 loadMatches();
