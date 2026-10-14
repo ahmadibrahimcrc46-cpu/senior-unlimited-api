@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Senior Unlimited - Formation</title>
+<style>
+body{margin:0; font-family:Arial; background:#f0f0f0}
+.header{background:white; padding:10px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,.1)}
+.header select{padding:8px 12px; border-radius:20px; border:1px solid #ddd; font-weight:bold}
+#pitch{background:linear-gradient(180deg,#4CAF50 0%,#388E3C 100%); margin:10px; border-radius:15px; padding:15px 5px 60px 5px; position:relative; min-height:520px; box-shadow:0 4px 15px rgba(0,0,0,.3)}
+.line{position:absolute; border:2px solid rgba(255,255,255,.6); left:3%; right:3%; top:2%; bottom:3%; border-radius:4px}
+.center-circle{position:absolute; width:80px; height:80px; border:2px solid rgba(255,255,255,.6); border-radius:50%; left:50%; top:0; transform:translateX(-50%)}
+.center-line{position:absolute; height:2px; background:rgba(255,255,255,.6); left:3%; right:3%; top:50%}
+.penalty-box{position:absolute; width:44%; height:18%; border:2px solid rgba(255,255,255,.6); left:50%; bottom:0; transform:translateX(-50%); border-bottom:none}
+.row{display:flex; justify-content:space-around; margin:18px 0; position:relative; z-index:2}
+.player{text-align:center; color:white; width:72px}
+.player img{width:52px; height:52px; border-radius:50%; border:3px solid white; background:white; object-fit:cover; box-shadow:0 3px 10px rgba(0,0,0,.5)}
+.player-name{font-weight:bold; font-size:11px; margin-top:4px; text-shadow:0 1px 3px black; line-height:12px}
+.player-num{background:rgba(0,0,0,.5); border-radius:10px; padding:1px 6px; font-size:10px; margin-top:2px; display:inline-block}
+.club-title{color:white; text-align:center; font-weight:bold; font-size:18px; text-shadow:0 2px 4px black; margin-bottom:10px; position:relative; z-index:2}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="font-weight:bold">⚽ Senior Unlimited</div>
+  <select id="clubSelect" onchange="changeClub()">
+    <option value="real">Real Madrid</option>
+    <option value="barca">Barcelona</option>
+    <option value="city">Man City</option>
+    <option value="arsenal">Arsenal</option>
+    <option value="bayern">Bayern Munich</option>
+  </select>
+</div>
+
+<div id="pitch">
+  <div class="line"></div>
+  <div class="center-circle"></div>
+  <div class="center-line"></div>
+  <div class="penalty-box"></div>
+  <div id="formationContent"></div>
+</div>
+
+<script>
+const clubs = {
+  real: {
+    name: "Real Madrid - 4-3-3",
+    players: [
+      [{n:"Mbappe",num:9,img:"https://media.api-sports.io/football/players/154.png"}],
+      [{n:"Vinicius Jr",num:7,img:"https://media.api-sports.io/football/players/36.png"},{n:"Bellingham",num:5,img:"https://media.api-sports.io/football/players/874.png"},{n:"Rodrygo",num:11,img:"https://media.api-sports.io/football/players/228.png"}],
+      [{n:"Valverde",num:8,img:"https://media.api-sports.io/football/players/1485.png"},{n:"Tchouameni",num:14,img:"https://media.api-sports.io/football/players/47377.png"},{n:"Camavinga",num:6,img:"https://media.api-sports.io/football/players/112444.png"}],
+      [{n:"Mendy",num:23,img:"https://media.api-sports.io/football/players/1460.png"},{n:"Rudiger",num:22,img:"https://media.api-sports.io/football/players/2728.png"},{n:"Militao",num:3,img:"https://media.api-sports.io/football/players/1490.png"},{n:"Carvajal",num:2,img:"https://media.api-sports.io/football/players/229.png"}],
+      [{n:"Courtois",num:1,img:"https://media.api-sports.io/football/players/3425.png"}]
+    ]
+  },
+  barca: {
+    name: "Barcelona - 4-3-3",
+    players: [
+      [{n:"Lewandowski",num:9,img:"https://media.api-sports.io/football/players/521.png"}],
+      [{n:"Yamal",num:19,img:"https://media.api-sports.io/football/players/284362.png"},{n:"Olmo",num:20,img:"https://media.api-sports.io/football/players/472.png"},{n:"Raphinha",num:11,img:"https://media.api-sports.io/football/players/41077.png"}],
+      [{n:"Pedri",num:8,img:"https://media.api-sports.io/football/players/129702.png"},{n:"De Jong",num:21,img:"https://media.api-sports.io/football/players/157.png"},{n:"Gavi",num:6,img:"https://media.api-sports.io/football/players/162951.png"}],
+      [{n:"Balde",num:3,img:"https://media.api-sports.io/football/players/162943.png"},{n:"Cubarsi",num:2,img:"https://media.api-sports.io/football/players/284324.png"},{n:"Araujo",num:4,img:"https://media.api-sports.io/football/players/1320.png"},{n:"Kounde",num:23,img:"https://media.api-sports.io/football/players/2200.png"}],
+      [{n:"Ter Stegen",num:1,img:"https://media.api-sports.io/football/players/159.png"}]
+    ]
+  },
+  city: {
+    name: "Man City - 4-2-3-1",
+    players: [
+      [{n:"Haaland",num:9,img:"https://media.api-sports.io/football/players/1100.png"}],
+      [{n:"Foden",num:47,img:"https://media.api-sports.io/football/players/508.png"},{n:"De Bruyne",num:17,img:"https://media.api-sports.io/football/players/629.png"},{n:"Bernardo",num:20,img:"https://media.api-sports.io/football/players/645.png"}],
+      [{n:"Rodri",num:16,img:"https://media.api-sports.io/football/players/267.png"},{n:"Kovacic",num:8,img:"https://media.api-sports.io/football/players/671.png"}],
+      [{n:"Gvardiol",num:24,img:"https://media.api-sports.io/football/players/20355.png"},{n:"Dias",num:3,img:"https://media.api-sports.io/football/players/1887.png"},{n:"Akanji",num:25,img:"https://media.api-sports.io/football/players/636.png"},{n:"Walker",num:2,img:"https://media.api-sports.io/football/players/631.png"}],
+      [{n:"Ederson",num:31,img:"https://media.api-sports.io/football/players/617.png"}]
+    ]
+  },
+  arsenal: {
+    name: "Arsenal - 4-3-3",
+    players: [
+      [{n:"Saka",num:7,img:"https://media.api-sports.io/football/players/1462.png"}],
+      [{n:"Martinelli",num:11,img:"https://media.api-sports.io/football/players/1460.png"},{n:"Odegaard",num:8,img:"https://media.api-sports.io/football/players/1464.png"},{n:"Havertz",num:29,img:"https://media.api-sports.io/football/players/635.png"}],
+      [{n:"Rice",num:41,img:"https://media.api-sports.io/football/players/2921.png"},{n:"Partey",num:5,img:"https://media.api-sports.io/football/players/2260.png"},{n:"White",num:4,img:"https://media.api-sports.io/football/players/1467.png"}],
+      [{n:"Timber",num:12,img:"https://media.api-sports.io/football/players/1900.png"},{n:"Gabriel",num:6,img:"https://media.api-sports.io/football/players/1463.png"},{n:"Saliba",num:2,img:"https://media.api-sports.io/football/players/1468.png"},{n:"Calafiori",num:33,img:"https://media.api-sports.io/football/players/1630.png"}],
+      [{n:"Raya",num:22,img:"https://media.api-sports.io/football/players/1469.png"}]
+    ]
+  },
+  bayern: {
+    name: "Bayern Munich - 4-2-3-1",
+    players: [
+      [{n:"Kane",num:9,img:"https://media.api-sports.io/football/players/184.png"}],
+      [{n:"Musiala",num:42,img:"https://media.api-sports.io/football/players/1241.png"},{n:"Olise",num:17,img:"https://media.api-sports.io/football/players/1490.png"},{n:"Sane",num:10,img:"https://media.api-sports.io/football/players/635.png"}],
+      [{n:"Kimmich",num:6,img:"https://media.api-sports.io/football/players/636.png"},{n:"Palhinha",num:16,img:"https://media.api-sports.io/football/players/637.png"}],
+      [{n:"Davies",num:19,img:"https://media.api-sports.io/football/players/638.png"},{n:"Kim",num:3,img:"https://media.api-sports.io/football/players/639.png"},{n:"Upamecano",num:2,img:"https://media.api-sports.io/football/players/640.png"},{n:"Laimer",num:27,img:"https://media.api-sports.io/football/players/641.png"}],
+      [{n:"Neuer",num:1,img:"https://media.api-sports.io/football/players/642.png"}]
+    ]
+  }
+};
+
+function render(clubKey){
+  const club = clubs[clubKey];
+  let html = `<div class="club-title">${club.name}</div>`;
+  club.players.forEach(row=>{
+    html+= `<div class="row">`;
+    row.forEach(p=>{
+      html+= `<div class="player"><img src="${p.img}" onerror="this.src='https://ui-avatars.com/api/?name=${p.n}&background=random'"><div class="player-name">${p.n}</div><div class="player-num">#${p.num}</div></div>`;
+    });
+    html+= `</div>`;
+  });
+  document.getElementById('formationContent').innerHTML = html;
+}
+
+function changeClub(){
+  const val = document.getElementById('clubSelect').value;
+  render(val);
+}
+
+// Fara da Real Madrid
+render('real');
+</script>
+</body>
+</html>
