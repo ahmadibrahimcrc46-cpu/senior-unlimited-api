@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Senior Unlimited - Formation</title>
+<meta name="theme-color" content="#0f172a">
+<style>
+:root{--primary:#facc15;--bg:#0f172a;--card:#1e293b;--text:#fff}
+body{margin:0;font-family:Arial;background:var(--bg);color:var(--text);padding-bottom:80px}
+header{background:#020617;padding:14px;display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--primary);position:sticky;top:0;z-index:10}
+.tabs{display:flex;gap:8px;padding:10px;background:#020617;overflow-x:auto;position:sticky;top:71px;z-index:9}
+.tabs button{background:var(--card);color:var(--primary);border:1px solid var(--primary);padding:7px 16px;border-radius:20px;font-size:12px;font-weight:bold}
+.tabs button.active{background:var(--primary);color:#000}
+.page{display:none;padding:10px}.page.active{display:block}
+.card{background:var(--card);margin:10px 0;padding:14px;border-radius:14px;border:1px solid #334155}
+.match{display:flex;justify-content:space-between;align-items:center;padding:12px 8px;border-bottom:1px solid #334155;cursor:pointer}
+.match:active{background:#334155}
+.score{background:var(--primary);color:#000;padding:5px 12px;border-radius:20px;font-weight:bold;font-size:12px;text-align:center}
+.back-btn{background:none;border:1px solid var(--primary);color:var(--primary);width:32px;height:32px;border-radius:50%;font-size:16px}
+.formation{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.team-box{background:#0f172a;padding:10px;border-radius:10px;border:1px solid #334155}
+.player{padding:4px 0;font-size:13px;border-bottom:1px solid #1e293b;display:flex;justify-content:space-between}
+.pitch{width:100%;height:400px;background:linear-gradient(to bottom,#22c55e 0%,#16a34a 100%);border:2px solid #fff;border-radius:10px;position:relative;margin:15px 0}
+.live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+</style>
+</head>
+<body>
+<header>
+<button class="back-btn" onclick="goBack()">←</button>
+<img src="./logo.png.PNG" style="width:42px;height:42px;background:var(--primary);border-radius:12px;padding:3px" onerror="this.style.display='none'">
+<div><div style="color:var(--primary);font-weight:bold">SENIOR UNLIMITED</div><div style="font-size:10px;color:#94a3b8">INDEX-7 FORMATION + DETAIL</div></div>
+</header>
+<div style="display:flex;justify-content:space-between;padding:5px 10px;color:#22c55e;font-size:11px;font-weight:bold"><span><span class="live-dot"></span> CLICK MATCH FOR FORMATION</span><span id="clock"></span><span>ESPN REAL ✅</span></div>
+
+<div class="tabs">
+<button class="active" id="b-home" onclick="openPage('home')">Home</button>
+<button id="b-leagues" onclick="openPage('leagues')">Leagues</button>
+<button id="b-detail" onclick="openPage('detail')">Match Detail</button>
+</div>
+
+<div id="home" class="page active"><div class="card"><h3 style="color:var(--primary)">🔥 Tap Any Match for Formation</h3><div id="matches">Loading...</div></div></div>
+
+<div id="leagues" class="page"><div class="card"><h3 style="color:var(--primary)">🏆 Tap League to See Matches</h3><div id="leagues-list">Loading...</div></div></div>
+
+<div id="detail" class="page">
+<div class="card">
+<h3 id="detail-title" style="color:var(--primary)">Match Detail</h3>
+<div id="detail-content"><p>Tap a match from Home to see formation & lineup here.</p></div>
+</div>
+</div>
+
+<div id="league-matches" class="page">
+<div class="card">
+<h3 id="league-title" style="color:var(--primary)">League Matches</h3>
+<div id="league-matches-content">Loading...</div>
+</div>
+</div>
+
+<script>
+let historyStack=['home'];
+let currentLeague='eng.1';
+function openPage(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+ let b=document.getElementById('b-'+id); if(b) b.classList.add('active');
+ if(historyStack[historyStack.length-1]!==id) historyStack.push(id);
+ if(id==='home') loadMatches();
+ if(id==='leagues') loadLeagues();
+}
+function goBack(){
+ if(historyStack.length>1){historyStack.pop(); let prev=historyStack[historyStack.length-1]; document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(prev).classList.add('active');} else {window.location.href='./index-6.html';}
+}
+
+// LOAD HOME
+async function loadMatches(){
+ const el=document.getElementById('matches');
+ el.innerHTML="Loading ESPN...";
+ try{
+  const leagues=['eng.1','esp.1','ger.1','ita.1','fra.1','uefa.champions'];
+  let allEvents=[];
+  for(let lg of leagues){
+   try{ const r=await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${lg}/scoreboard`); const d=await r.json(); if(d.events) allEvents=allEvents.concat(d.events.map(e=>({...e,_league:lg,_leagueName:d.leagues[0].name}))); }catch{}
+  }
+  if(allEvents.length===0){ el.innerHTML="Babu wasa yau"; return;}
+  el.innerHTML=allEvents.slice(0,25).map(g=>{
+   const comp=g.competitions[0]; const c1=comp.competitors[0]; const c2=comp.competitors[1];
+   let h=c1.homeAway==='home'?c1:c2; let a=c1.homeAway==='away'?c1:c2;
+   return `<div class="match" onclick="openMatchDetail('${g.id}','${g._league}','${h.team.shortDisplayName} vs ${a.team.shortDisplayName}')">
+   <span>${h.team.shortDisplayName} vs ${a.team.shortDisplayName}<br><small style="color:#94a3b8">${g._leagueName} • ${comp.status.type.shortDetail} • Tap for formation ➔</small></span>
+   <span class="score">${h.score}-${a.score}</span></div>`;
+  }).join('');
+ }catch(e){ el.innerHTML="Error: "+e.message; }
+}
+
+// LEAGUES LIST - NOW CLICKABLE
+async function loadLeagues(){
+ const el=document.getElementById('leagues-list');
+ el.innerHTML="Loading...";
+ const leagues=[
+   {id:'eng.1',name:'Premier League'},{id:'esp.1',name:'LaLiga'},{id:'ger.1',name:'Bundesliga'},
+   {id:'ita.1',name:'Serie A'},{id:'fra.1',name:'Ligue 1'},{id:'uefa.champions',name:'Champions League'}
+ ];
+ let html="";
+ for(let lg of leagues){
+  try{
+   const r=await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${lg.id}/scoreboard`);
+   const d=await r.json(); const count=d.events?d.events.length:0;
+   html+=`<div class="match" onclick="openLeague('${lg.id}','${lg.name}')"><span>🏆 ${lg.name}</span><span class="score">${count} Games ➔</span></div>`;
+  }catch{ html+=`<div class="match" onclick="openLeague('${lg.id}','${lg.name}')"><span>${lg.name}</span><span class="score">Tap ➔</span></div>`; }
+ }
+ el.innerHTML=html;
+}
+
+async function openLeague(leagueId, leagueName){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById('league-matches').classList.add('active');
+ document.getElementById('league-title').innerText=leagueName;
+ historyStack.push('league-matches');
+ const el=document.getElementById('league-matches-content');
+ el.innerHTML="Loading "+leagueName+"...";
+ try{
+  const r=await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard`);
+  const d=await r.json();
+  if(!d.events||d.events.length===0){ el.innerHTML="Babu wasa a "+leagueName+" yau"; return;}
+  el.innerHTML=d.events.map(g=>{
+   const comp=g.competitions[0]; const c1=comp.competitors[0]; const c2=comp.competitors[1];
+   let h=c1.homeAway==='home'?c1:c2; let a=c1.homeAway==='away'?c1:c2;
+   return `<div class="match" onclick="openMatchDetail('${g.id}','${leagueId}','${h.team.shortDisplayName} vs ${a.team.shortDisplayName}')"><span>${h.team.shortDisplayName} vs ${a.team.shortDisplayName}<br><small>${comp.status.type.shortDetail}</small></span><span class="score">${h.score}-${a.score}<br><small>Tap ➔</small></span></div>`;
+  }).join('');
+ }catch(e){ el.innerHTML="Error "+e.message; }
+}
+
+async function openMatchDetail(eventId, leagueId, title){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById('detail').classList.add('active');
+ historyStack.push('detail');
+ document.getElementById('detail-title').innerText=title;
+ const el=document.getElementById('detail-content');
+ el.innerHTML=`<p>Loading formation for ${title}... ⏳<br>Event: ${eventId}</p>`;
+ try{
+  const r=await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/summary?event=${eventId}`);
+  const d=await r.json();
+  let html=`<h4 style="color:#facc15">${d.header.competitions[0].competition.name} - ${d.header.competitions[0].status.type.detail}</h4>`;
+  html+=`<div style="display:flex;justify-content:space-between;background:#020617;padding:10px;border-radius:10px"><span>${d.header.competitions[0].competitors[0].team.displayName} ${d.header.competitions[0].competitors[0].score}</span><span>VS</span><span>${d.header.competitions[0].competitors[1].score} ${d.header.competitions[0].competitors[1].team.displayName}</span></div>`;
+
+  // Formation & Lineups
+  if(d.rosters){
+   html+=`<div class="formation">`;
+   d.rosters.forEach(team=>{
+    let formation = team.formation||'4-4-2';
+    html+=`<div class="team-box"><h5 style="color:var(--primary);margin:0 0 5px 0">${team.team.displayName} - ${formation}</h5>`;
+    if(team.roster){
+     team.roster.forEach(p=>{
+      let pos = p.position? p.position.displayName || p.position.abbreviation : 'Sub';
+      html+=`<div class="player"><span>${p.jersey||''} ${p.athlete.displayName}</span><small style="color:#94a3b8">${pos}</small></div>`;
+     });
+    } else { html+=`<p>No lineup yet (match not started)</p>`; }
+    html+=`</div>`;
+   });
+   html+=`</div>`;
+  } else {
+   html+=`<p style="color:#facc15;margin-top:15px">⚠️ Formation / Lineup zai fito ne idan wasa ya kusa farawa ko ya fara. Yanzu wasan Scheduled ne.</p>`;
+   html+=`<p>Wannan wasan: ${title} - Status: ${d.header.competitions[0].status.type.shortDetail}</p>`;
+  }
+  // Stats
+  if(d.boxscore && d.boxscore.teams){
+   html+=`<h4 style="color:#facc15;margin-top:15px">📊 Stats</h4>`;
+   d.boxscore.teams.forEach(t=>{
+    html+=`<div class="team-box" style="margin-top:5px"><b>${t.team.displayName}</b><br>`;
+    if(t.statistics){ t.statistics.forEach(s=>{ html+=`<div class="player"><span>${s.displayName}</span><span>${s.displayValue}</span></div>`; }); }
+    html+=`</div>`;
+   });
+  }
+  el.innerHTML=html;
+ }catch(e){
+  el.innerHTML=`<p>Formation zai fito da zarar an saka lineup. Wasan nan ${title} baya da lineup tukuna saboda Scheduled ne.</p><p>Error: ${e.message}</p><p>Amma idan wasa ya fara, zai nuna maka: 4-3-3 formation da sunayen 'yan wasa 11 na kowanne club!</p>`;
+ }
+}
+setInterval(()=>{let c=document.getElementById('clock'); if(c) c.innerText=new Date().toLocaleTimeString();},1000);
+loadMatches();
+</script>
+</body>
+</html>
