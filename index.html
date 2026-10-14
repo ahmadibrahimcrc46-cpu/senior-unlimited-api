@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head><link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ScoreSphere</title>
@@ -95,5 +96,9 @@ document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'
 btn.classList.add('active');
 }
 </script>
-</body>
+</body><script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
 </html>
